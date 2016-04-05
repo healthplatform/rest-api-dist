@@ -116,8 +116,16 @@ function main(models_and_routes, callback, skip_db, createSampleData) {
                         else
                             console.info(results.map(function (result) {
                                 return result instanceof Array ?
-                                    (_a = {}, _a[result[0].func_name] = result.map(function (r) { return (r.statusCode + " " + r.statusCode + ", "); }), _a) :
-                                    (_b = {}, _b[result.func_name] = result.statusCode + " " + result.statusCode + ", ", _b);
+                                    (_a = {},
+                                        _a[result[0].func_name] = result.map(function (r) {
+                                            return (r.statusCode + " " + r.statusMessage + ", ");
+                                        }).reduce(function (countDict, word) {
+                                            countDict[word] = ++countDict[word] || 1;
+                                            return countDict;
+                                        }, {}),
+                                        _a
+                                    ) :
+                                    (_b = {}, _b[result.func_name] = result.statusCode + " " + result.statusMessage + ", ", _b);
                                 var _a, _b;
                             }));
                     });

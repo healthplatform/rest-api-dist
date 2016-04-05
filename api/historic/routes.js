@@ -3,6 +3,7 @@ var restify_1 = require('restify');
 var main_1 = require('../../main');
 var validators_1 = require('./../../utils/validators');
 var helpers_1 = require('../../utils/helpers');
+var middleware_1 = require('./middleware');
 function create(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
     var noun = namespace.substr(namespace.lastIndexOf('/') + 1);
@@ -37,17 +38,9 @@ function get(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
     var noun = namespace.substr(namespace.lastIndexOf('/') + 1);
     namespace = namespace.substr(0, namespace.lastIndexOf('/'));
-    app.get(namespace + "/patient/:medicare_no/" + noun, function (req, res, next) {
-        var PatientHistory = main_1.collections['patient_historic_tbl'];
-        PatientHistory.findOne({ medicare_no: req.params.medicare_no }).exec(function (error, historic) {
-            if (error) {
-                var e = helpers_1.fmtError(error);
-                res.send(e.statusCode, e.body);
-                return next();
-            }
-            res.json(historic);
-            return next();
-        });
+    app.get(namespace + "/patient/:medicare_no/" + noun, middleware_1.fetchHistoric, function (req, res, next) {
+        res.json(req.historic);
+        return next();
     });
 }
 exports.get = get;

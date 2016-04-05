@@ -5,6 +5,9 @@ var main_1 = require('../../main');
 var helpers_1 = require('../../utils/helpers');
 var errors_1 = require('../../utils/errors');
 var utils_1 = require('./utils');
+var middleware_1 = require('./middleware');
+var middleware_2 = require('./../historic/middleware');
+var middleware_3 = require('./../visit/middleware');
 function create(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
     app.post(namespace, validators_1.has_body, function (req, res, next) {
@@ -22,25 +25,9 @@ function create(app, namespace) {
 exports.create = create;
 function get(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
-    app.get(namespace + "/:medicare_no", function (req, res, next) {
-        var Patient = main_1.collections['patient_tbl'];
-        var q = Patient.findOne({ medicare_no: req.params.medicare_no });
-        if (req.params.populate_contact)
-            q.populate('contact')
-                .populate('gp')
-                .populate('other_specialists');
-        q.exec(function (error, patient) {
-            if (error) {
-                var e = helpers_1.fmtError(error);
-                res.send(e.statusCode, e.body);
-                return next();
-            }
-            else if (!patient) {
-                return next(new errors_1.NotFoundError("patient with medicare_no '" + req.params.medicare_no + "'"));
-            }
-            res.json(patient.toJSON());
-            return next();
-        });
+    app.get(namespace + "/:medicare_no", middleware_1.fetchPatient, function (req, res, next) {
+        res.json(req.patient.toJSON());
+        return next();
     });
 }
 exports.get = get;
@@ -48,10 +35,6 @@ function del(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
     app.del(namespace + "/:medicare_no", function (req, res, next) {
         var Patient = main_1.collections['patient_tbl'];
-        console.log('req.params =', req.params);
-        console.log('req.body =', req.body);
-        req.log.info('req.params =', req.params);
-        req.log.info('req.body =', req.body);
         Patient.destroy({ medicare_no: req.params.medicare_no }).exec(function (error) {
             if (error) {
                 var e = helpers_1.fmtError(error);
@@ -68,7 +51,12 @@ function batchGet(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
     app.get(namespace + "s", function (req, res, next) {
         var Patient = main_1.collections['patient_tbl'];
-        Patient.find().exec(function (error, patients) {
+        var q = Patient.find();
+        if (req.params.populate_contact)
+            q.populate('contact')
+                .populate('gp')
+                .populate('other_specialists');
+        q.exec(function (error, patients) {
             if (error) {
                 var e = helpers_1.fmtError(error);
                 res.send(e.statusCode, e.body);
@@ -102,7 +90,6 @@ function batchDelete(app, namespace) {
         var Patient = main_1.collections['patient_tbl'];
         if (!req.body.patients)
             return next(new errors_1.NotFoundError('patients key on body'));
-        req.log.info('req.body.patients =', req.body.patients);
         Patient.destroy({ medicare_no: req.body.patients.map(function (v) { return v.medicare_no; }) }).exec(function (error) {
             if (error) {
                 var e = helpers_1.fmtError(error);
@@ -115,3 +102,21 @@ function batchDelete(app, namespace) {
     });
 }
 exports.batchDelete = batchDelete;
+function getAllPatientRelated(app, namespace) {
+    if (namespace === void 0) { namespace = ""; }
+    app.get(namespace + "/:medicare_no/all", function (req, res, next) {
+        async.parallel([
+            function (cb) { return middleware_1.fetchPatient(req, res, cb); },
+            function (cb) { return middleware_2.fetchHistoric(req, res, cb); },
+            function (cb) { return middleware_3.fetchVisits(req, res, cb); }
+        ], function () {
+            res.json({
+                visits: req.visits,
+                historic: req.historic,
+                patient: req.patient
+            });
+            return next();
+        });
+    });
+}
+exports.getAllPatientRelated = getAllPatientRelated;

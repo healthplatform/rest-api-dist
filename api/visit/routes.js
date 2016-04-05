@@ -3,6 +3,7 @@ var restify_1 = require('restify');
 var validators_1 = require('./../../utils/validators');
 var main_1 = require('./../../main');
 var helpers_1 = require('./../../utils/helpers');
+var middleware_1 = require('./middleware');
 function create(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
     var noun = namespace.substr(namespace.lastIndexOf('/') + 1);
@@ -41,17 +42,9 @@ function get(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
     var noun = namespace.substr(namespace.lastIndexOf('/') + 1);
     namespace = namespace.substr(0, namespace.lastIndexOf('/'));
-    app.get(namespace + "/patient/:medicare_no/" + noun + "/:createdAt", function (req, res, next) {
-        var Visit = main_1.collections['visit_tbl'];
-        Visit.findOne({ createdAt: req.params.createdAt }).exec(function (error, visit) {
-            if (error) {
-                var e = helpers_1.fmtError(error);
-                res.send(e.statusCode, e.body);
-                return next();
-            }
-            res.json(visit);
-            return next();
-        });
+    app.get(namespace + "/patient/:medicare_no/" + noun + "/:createdAt", middleware_1.fetchVisit, function (req, res, next) {
+        res.json(req.visit);
+        return next();
     });
 }
 exports.get = get;
@@ -77,17 +70,9 @@ function batchGet(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
     var noun = namespace.substr(namespace.lastIndexOf('/') + 1);
     namespace = namespace.substr(0, namespace.lastIndexOf('/'));
-    app.get(namespace + "/patient/:medicare_no/" + noun + "s", function (req, res, next) {
-        var Visit = main_1.collections['visit_tbl'];
-        Visit.find({ medicare_no: req.params.medicare_no }).exec(function (error, visits) {
-            if (error) {
-                var e = helpers_1.fmtError(error);
-                res.send(e.statusCode, e.body);
-                return next();
-            }
-            res.json({ 'visits': visits });
-            return next();
-        });
+    app.get(namespace + "/patient/:medicare_no/" + noun + "s", middleware_1.fetchVisits, function (req, res, next) {
+        res.json({ 'visits': req.visits });
+        return next();
     });
 }
 exports.batchGet = batchGet;
