@@ -43,7 +43,7 @@ var VisitTestSDK = (function () {
     VisitTestSDK.prototype.registerManyFaux = function (visits, cb) {
         if (!visits)
             return cb(new TypeError('visits argument to registerManyFaux must be defined'));
-        async.map(visits, this.register, cb);
+        async.map(visits.visits, this.register, cb);
     };
     VisitTestSDK.prototype.deregisterManyFaux = function (visits, cb) {
         if (!visits)

@@ -8,9 +8,10 @@ var utils_1 = require('./utils');
 var middleware_1 = require('./middleware');
 var middleware_2 = require('./../historic/middleware');
 var middleware_3 = require('./../visit/middleware');
+var middleware_4 = require('../auth/middleware');
 function create(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
-    app.post(namespace, validators_1.has_body, function (req, res, next) {
+    app.post(namespace, validators_1.has_body, middleware_4.has_auth(), function (req, res, next) {
         utils_1.createPatient(req.body, function (error, results) {
             if (error) {
                 var e = helpers_1.fmtError(error);
@@ -25,7 +26,7 @@ function create(app, namespace) {
 exports.create = create;
 function get(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
-    app.get(namespace + "/:medicare_no", middleware_1.fetchPatient, function (req, res, next) {
+    app.get(namespace + "/:medicare_no", middleware_4.has_auth(), middleware_1.fetchPatient, function (req, res, next) {
         res.json(req.patient.toJSON());
         return next();
     });
@@ -33,7 +34,7 @@ function get(app, namespace) {
 exports.get = get;
 function del(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
-    app.del(namespace + "/:medicare_no", function (req, res, next) {
+    app.del(namespace + "/:medicare_no", middleware_4.has_auth(), function (req, res, next) {
         var Patient = main_1.collections['patient_tbl'];
         Patient.destroy({ medicare_no: req.params.medicare_no }).exec(function (error) {
             if (error) {
@@ -49,7 +50,7 @@ function del(app, namespace) {
 exports.del = del;
 function batchGet(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
-    app.get(namespace + "s", function (req, res, next) {
+    app.get(namespace + "s", middleware_4.has_auth(), function (req, res, next) {
         var Patient = main_1.collections['patient_tbl'];
         var q = Patient.find();
         if (req.params.populate_contact)
@@ -70,7 +71,7 @@ function batchGet(app, namespace) {
 exports.batchGet = batchGet;
 function batchCreate(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
-    app.post(namespace + "s", validators_1.has_body, function (req, res, next) {
+    app.post(namespace + "s", validators_1.has_body, middleware_4.has_auth(), function (req, res, next) {
         async.mapLimit(req.body.patients, 1, utils_1.createPatient, function (error, results) {
             if (error) {
                 console.error(error);
@@ -86,7 +87,7 @@ function batchCreate(app, namespace) {
 exports.batchCreate = batchCreate;
 function batchDelete(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
-    app.del(namespace + "s", validators_1.has_body, function (req, res, next) {
+    app.del(namespace + "s", validators_1.has_body, middleware_4.has_auth(), function (req, res, next) {
         var Patient = main_1.collections['patient_tbl'];
         if (!req.body.patients)
             return next(new errors_1.NotFoundError('patients key on body'));
@@ -104,7 +105,7 @@ function batchDelete(app, namespace) {
 exports.batchDelete = batchDelete;
 function getAllPatientRelated(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
-    app.get(namespace + "/:medicare_no/all", function (req, res, next) {
+    app.get(namespace + "/:medicare_no/all", middleware_4.has_auth(), function (req, res, next) {
         async.parallel([
             function (cb) { return middleware_1.fetchPatient(req, res, cb); },
             function (cb) { return middleware_2.fetchHistoric(req, res, cb); },

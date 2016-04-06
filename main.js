@@ -105,6 +105,7 @@ function main(models_and_routes, callback, skip_db, createSampleData) {
                 if (createSampleData) {
                     var sampleData_1 = new SampleData_1.SampleData(app.url);
                     async.series([
+                        function (cb) { return sampleData_1.registerLogin(cb); },
                         function (cb) { return sampleData_1.deletePatientsHttp(cb); },
                         function (cb) { return sampleData_1.loadPatientsHttp(cb); },
                         function (cb) { return sampleData_1.deleteHistoricHttp(cb); },

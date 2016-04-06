@@ -18,9 +18,19 @@ describe('Visit::routes', function () {
         self.connections = connections;
         self.app = app;
         self.sdk = new visit_test_sdk_1.VisitTestSDK(self.app);
-        self.patient_sdk = patient_test_sdk_1.test_sdk(self.app);
         self.patient_mocks = new patient_mocks_1.PatientMocks();
         self.mocks = visit_mocks_1.VisitMocks;
+        async.waterfall([
+            function (cb) { return _this.authSDK.logout_unregister(undefined, function () { return cb(); }); },
+            function (cb) { return _this.authSDK.register_login(undefined, cb); }
+        ], function (err, token) {
+            if (err) {
+                return done(err);
+            }
+            self.token = token;
+            self.patientSDK = new patient_test_sdk_1.PatientTestSDK(self.app, self.token);
+            return done();
+        });
         done();
     }); });
     after(function (done) {

@@ -111,12 +111,5 @@ describe('utils::helpers', function () {
                 "user": "postgres"
             });
         });
-        it('should work with proto+host+user', function () {
-            chai_1.expect(helpers_1.uri_to_config('postgresql://postgres:localhost')).to.deep.equal({
-                "database": "postgres",
-                "host": "localhost",
-                "user": "postgres"
-            });
-        });
     });
 });

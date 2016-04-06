@@ -15,15 +15,15 @@ describe('User::routes', function () {
     before(function (done) { return main_1.main(user_models_and_routes, function (app, connections) {
         _this.connections = connections;
         _this.app = app;
-        _this.sdk = auth_test_sdk_1.test_sdk(_this.app);
+        _this.sdk = new auth_test_sdk_1.AuthTestSDK(_this.app);
         done();
     }); });
     after(function (done) {
-        return async.parallel(Object.keys(_this.connections).map(function (connection) { return _this.connections[connection]._adapter.teardown; }), function (err, _res) { return done(err); });
+        return _this.connections && async.parallel(Object.keys(_this.connections).map(function (connection) { return _this.connections[connection]._adapter.teardown; }), function (err, _res) { return done(err); });
     });
     describe('/api/user', function () {
-        beforeEach(function (done) { return auth_test_sdk_1.unregister_all(_this.sdk, user_mocks_1.user_mocks.successes, done); });
-        afterEach(function (done) { return auth_test_sdk_1.unregister_all(_this.sdk, user_mocks_1.user_mocks.successes, done); });
+        beforeEach(function (done) { return _this.sdk.unregister_all(user_mocks_1.user_mocks.successes, done); });
+        afterEach(function (done) { return _this.sdk.unregister_all(user_mocks_1.user_mocks.successes, done); });
         it('POST should create user', function (done) {
             _this.sdk.register(user_mocks_1.user_mocks.successes[0], done);
         });

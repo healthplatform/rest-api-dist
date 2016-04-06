@@ -6,6 +6,7 @@ var patient_mocks_1 = require('../test/api/patient/patient_mocks');
 var historic_mocks_1 = require('../test/api/historic/historic_mocks');
 var visit_mocks_1 = require('../test/api/visit/visit_mocks');
 var helpers_1 = require('./helpers');
+var user_mocks_1 = require('../test/api/user/user_mocks');
 function httpF(method) {
     return function (options, func_name, body_or_cb, cb) {
         if (!cb) {
@@ -37,6 +38,7 @@ var httpHEAD = httpF('HEAD'), httpGET = httpF('GET'), httpPOST = httpF('POST'), 
 var SampleData = (function () {
     function SampleData(uri) {
         this.patientMocks = new patient_mocks_1.PatientMocks();
+        this.userMocks = user_mocks_1.user_mocks.successes;
         this.historicMocks = historic_mocks_1.HistoricMocks;
         this.visitMocks = visit_mocks_1.VisitMocks;
         this.uri = url.parse(uri);
@@ -46,11 +48,25 @@ var SampleData = (function () {
             host: this.uri.host === "[::]:" + this.uri.port ? 'localhost' :
                 "" + this.uri.host.substr(this.uri.host.lastIndexOf(this.uri.port) + this.uri.port.length),
             port: parseInt(this.uri.port),
-            headers: {
+            headers: helpers_1.trivial_merge({
                 'Content-Type': 'application/json',
                 'Content-Length': body ? Buffer.byteLength(body) : 0
-            }
+            }, this.token ? { 'X-Access-Token': this.token } : {})
         }, options);
+    };
+    SampleData.prototype.registerLogin = function (cb) {
+        var _this = this;
+        var body = JSON.stringify(this.userMocks[0]);
+        async.series([
+            function (callback) { return httpPOST(_this.mergeOptions({ path: '/api/user' }), 'registerLogin::user', body, function () { return callback(); }); },
+            function (callback) { return httpPOST(_this.mergeOptions({ path: '/api/auth' }), 'registerLogin::auth', body, callback); },
+        ], function (err, res) {
+            if (err)
+                return cb(err);
+            _this.token = res[1].headers['x-access-token'];
+            console.log('this.token =', _this.token);
+            return cb(err, _this.token);
+        });
     };
     SampleData.prototype.deletePatientsHttp = function (cb) {
         var body = JSON.stringify({ patients: this.patientMocks.patients });
