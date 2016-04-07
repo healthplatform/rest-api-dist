@@ -22,8 +22,8 @@ describe('User::routes', function () {
         return _this.connections && async.parallel(Object.keys(_this.connections).map(function (connection) { return _this.connections[connection]._adapter.teardown; }), function (err, _res) { return done(err); });
     });
     describe('/api/user', function () {
-        beforeEach(function (done) { return _this.sdk.unregister_all(user_mocks_1.user_mocks.successes, done); });
-        afterEach(function (done) { return _this.sdk.unregister_all(user_mocks_1.user_mocks.successes, done); });
+        beforeEach(function (done) { return _this.sdk.unregister_all(user_mocks_1.user_mocks.successes, function () { return done(); }); });
+        afterEach(function (done) { return _this.sdk.unregister_all(user_mocks_1.user_mocks.successes, function () { return done(); }); });
         it('POST should create user', function (done) {
             _this.sdk.register(user_mocks_1.user_mocks.successes[0], done);
         });
@@ -40,10 +40,9 @@ describe('User::routes', function () {
             ], function (err, results) { return done(err); });
         });
         it('PUT should edit user', function (done) {
-            var sdk = _this.sdk;
             async.waterfall([
                 function (cb) { return _this.sdk.register(user_mocks_1.user_mocks.successes[1], cb); },
-                function (_, cb) { return sdk.login(user_mocks_1.user_mocks.successes[1], function (err, res) {
+                function (_, cb) { return _this.sdk.login(user_mocks_1.user_mocks.successes[1], function (err, res) {
                     return err ? cb(err) : cb(null, res.body.access_token);
                 }); },
                 function (access_token, cb) {
@@ -60,25 +59,25 @@ describe('User::routes', function () {
                     chai_1.expect(r.body.title).equals('Mr');
                     return cb();
                 }
-            ], function (err, results) { return done(err); });
+            ], done);
         });
         it('DELETE should unregister user', function (done) {
-            var sdk = _this.sdk;
-            async.waterfall([
+            return async.waterfall([
                 function (cb) { return _this.sdk.register(user_mocks_1.user_mocks.successes[2], cb); },
-                function (_, cb) { return sdk.login(user_mocks_1.user_mocks.successes[2], function (err, res) {
+                function (_, cb) { return _this.sdk.login(user_mocks_1.user_mocks.successes[2], function (err, res) {
                     return err ? cb(err) : cb(null, res.body.access_token);
                 }); },
                 function (access_token, cb) {
-                    return sdk.unregister({ access_token: access_token }, function (err, res) {
+                    return _this.sdk.unregister({ access_token: access_token }, function (err) {
                         return cb(err, access_token);
                     });
                 },
-                function (access_token, cb) {
-                    models_1.AccessToken().findOne(access_token, function (e, r) {
-                        return cb(!e ? new Error("Access token wasn't invalidated/removed") : null);
-                    });
-                }
+                function (access_token, cb) { return models_1.AccessToken().findOne(access_token, function (e) {
+                    return cb(!e ? new Error('Access token wasn\'t invalidated/removed') : null);
+                }); },
+                function (cb) { return _this.sdk.login(user_mocks_1.user_mocks.successes[2], function (e) {
+                    return cb(!e ? new Error('User can login after unregister') : null);
+                }); }
             ], function (err, results) { return done(err); });
         });
     });

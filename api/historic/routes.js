@@ -4,11 +4,12 @@ var main_1 = require('../../main');
 var validators_1 = require('./../../utils/validators');
 var helpers_1 = require('../../utils/helpers');
 var middleware_1 = require('./middleware');
+var middleware_2 = require('../auth/middleware');
 function create(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
     var noun = namespace.substr(namespace.lastIndexOf('/') + 1);
     namespace = namespace.substr(0, namespace.lastIndexOf('/'));
-    app.post(namespace + "/patient/:medicare_no/" + noun, validators_1.has_body, function (req, res, next) {
+    app.post(namespace + "/patient/:medicare_no/" + noun, validators_1.has_body, middleware_2.has_auth(), function (req, res, next) {
         var PatientHistory = main_1.collections['patient_historic_tbl'], Patient = main_1.collections['patient_tbl'];
         Patient.count({ medicare_no: req.body.medicare_no }, function (err, count) {
             if (err) {
@@ -38,7 +39,7 @@ function get(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
     var noun = namespace.substr(namespace.lastIndexOf('/') + 1);
     namespace = namespace.substr(0, namespace.lastIndexOf('/'));
-    app.get(namespace + "/patient/:medicare_no/" + noun, middleware_1.fetchHistoric, function (req, res, next) {
+    app.get(namespace + "/patient/:medicare_no/" + noun, middleware_2.has_auth(), middleware_1.fetchHistoric, function (req, res, next) {
         res.json(req.historic);
         return next();
     });
@@ -48,7 +49,7 @@ function del(app, namespace) {
     if (namespace === void 0) { namespace = ""; }
     var noun = namespace.substr(namespace.lastIndexOf('/') + 1);
     namespace = namespace.substr(0, namespace.lastIndexOf('/'));
-    app.del(namespace + "/patient/:medicare_no/" + noun, function (req, res, next) {
+    app.del(namespace + "/patient/:medicare_no/" + noun, middleware_2.has_auth(), function (req, res, next) {
         var PatientHistory = main_1.collections['patient_historic_tbl'];
         PatientHistory.destroy({ medicare_no: req.params.medicare_no }).exec(function (error) {
             if (error) {

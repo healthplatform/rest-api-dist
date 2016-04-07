@@ -23,11 +23,10 @@ describe('Auth::routes', function () {
         beforeEach(function (done) { return _this.sdk.unregister_all(user_mocks_1.user_mocks.successes, function () { return done(); }); });
         afterEach(function (done) { return _this.sdk.unregister_all(user_mocks_1.user_mocks.successes, function () { return done(); }); });
         it('POST should login user', function (done) {
-            var sdk = _this.sdk;
-            async.waterfall([
-                function (cb) { return _this.sdk.register(user_mocks_1.user_mocks.successes[0], cb); },
-                function (_, cb) { return sdk.login(user_mocks_1.user_mocks.successes[0], cb); }
-            ], function (err, results) { return done(err); });
+            async.series([
+                function (cb) { return _this.sdk.register(user_mocks_1.user_mocks.successes[1], cb); },
+                function (cb) { return _this.sdk.login(user_mocks_1.user_mocks.successes[1], cb); }
+            ], done);
         });
         it('DELETE should logout user', function (done) {
             var sdk = _this.sdk;

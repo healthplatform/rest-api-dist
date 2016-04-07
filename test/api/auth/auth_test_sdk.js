@@ -10,19 +10,16 @@ var AuthTestSDK = (function () {
     AuthTestSDK.prototype.register = function (user, cb) {
         if (!user)
             return cb(new TypeError('user argument to register must be defined'));
-        console.log('Calling AuthTestSDK.register with:', user, cb);
         supertest(this.app)
             .post('/api/user')
             .send(user)
             .expect('Content-Type', /json/)
-            .expect(201)
             .end(function (err, res) {
-            console.error('AuthTestSDK.register err =', err);
-            console.log('AuthTestSDK.register res =', res);
             if (err)
                 return cb(err);
             else if (res.statusCode / 100 >= 3)
                 return cb(new Error(JSON.stringify(res.text, null, 4)));
+            chai_1.expect(res.statusCode).to.be.equal(201);
             chai_1.expect(Object.keys(res.body).sort()).to.deep.equal(['createdAt', 'email', 'updatedAt']);
             return cb(err, res);
         });
@@ -85,20 +82,19 @@ var AuthTestSDK = (function () {
                 .end(cb);
     };
     AuthTestSDK.prototype.unregister_all = function (users, done) {
-        var self = this;
-        function f(user, callback) {
-            return async.waterfall([
-                function (cb) { return self.login(user, function (err, res) {
+        var _this = this;
+        async.map(users, function (user, callback) {
+            async.waterfall([
+                function (cb) { return _this.login(user, function (err, res) {
                     return err ? cb(err) : cb(null, res.body.access_token);
                 }); },
                 function (access_token, cb) {
-                    return self.unregister({ access_token: access_token }, function (err, res) {
+                    return _this.unregister({ access_token: access_token }, function (err, res) {
                         return cb(err, access_token);
                     });
                 },
             ], callback);
-        }
-        async.map(users, f, done);
+        }, done);
     };
     AuthTestSDK.prototype.register_login = function (user, done) {
         var _this = this;
@@ -106,17 +102,14 @@ var AuthTestSDK = (function () {
         if (!user) {
             return done(new TypeError('user undefined in `register_login`'));
         }
-        console.log('IN register_login');
-        async.waterfall([
-            function (cb) { return _this.register(user, function (err, res) {
-                console.info('register_login::register::res =', res);
-                return cb(err, res);
-            }); },
+        async.series([
+            function (cb) { return _this.register(user, cb); },
             function (cb) { return _this.login(user, cb); }
-        ], function (err, res) {
-            err && console.error('register_login::err =', err);
-            res && console.info('register_login::res =', res);
-            return done(err, res);
+        ], function (err, results) {
+            if (err) {
+                return done(err);
+            }
+            return done(err, results[1].get('x-access-token'));
         });
     };
     AuthTestSDK.prototype.logout_unregister = function (user, done) {

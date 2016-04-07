@@ -2,17 +2,20 @@
 var supertest = require('supertest');
 var chai_1 = require('chai');
 var async = require('async');
-var g_app;
 var VisitTestSDK = (function () {
-    function VisitTestSDK(app) {
+    function VisitTestSDK(app, token) {
         this.app = app;
-        g_app = app;
+        this.token = token;
+        if (!token) {
+            throw TypeError('PatientTestSDK needs token filled');
+        }
     }
     VisitTestSDK.prototype.register = function (visit, cb) {
         if (!visit)
             return cb(new TypeError('visit argument to register must be defined'));
-        supertest(this ? this.app : g_app)
+        supertest(this.app)
             .post("/api/patient/" + visit.medicare_no + "/visit")
+            .set({ 'X-Access-Token': this.token })
             .send(visit)
             .end(function (err, res) {
             if (err)
@@ -30,6 +33,7 @@ var VisitTestSDK = (function () {
             return cb(new TypeError('visit argument to register must be defined'));
         supertest(this.app)
             .delete("/api/patient/" + visit.medicare_no + "/visit/" + visit.createdAt)
+            .set({ 'X-Access-Token': this.token })
             .send(visit)
             .end(function (err, res) {
             if (err)

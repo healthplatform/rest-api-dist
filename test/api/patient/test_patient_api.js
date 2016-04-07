@@ -17,20 +17,20 @@ describe('Patient::routes', function () {
         _this.app = app;
         _this.mocks = new patient_mocks_1.PatientMocks();
         _this.authSDK = new auth_test_sdk_1.AuthTestSDK(_this.app);
-        async.waterfall([
+        async.series([
             function (cb) { return _this.authSDK.logout_unregister(undefined, function () { return cb(); }); },
             function (cb) { return _this.authSDK.register_login(undefined, cb); }
-        ], function (err, token) {
+        ], function (err, responses) {
             if (err) {
                 return done(err);
             }
-            _this.token = token;
+            _this.token = responses[1];
             _this.sdk = new patient_test_sdk_1.PatientTestSDK(_this.app, _this.token);
             return done();
         });
     }); });
     after(function (done) {
-        return async.waterfall([
+        return async.series([
             function (cb) { return _this.authSDK.logout_unregister(undefined, cb); },
             function (cb) { return async.parallel(Object.keys(_this.connections).map(function (connection) { return _this.connections[connection]._adapter.teardown; }), cb); }
         ], done);
