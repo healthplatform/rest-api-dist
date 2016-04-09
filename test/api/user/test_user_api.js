@@ -16,10 +16,10 @@ describe('User::routes', function () {
         _this.connections = connections;
         _this.app = app;
         _this.sdk = new auth_test_sdk_1.AuthTestSDK(_this.app);
-        done();
+        return done();
     }); });
     after(function (done) {
-        return _this.connections && async.parallel(Object.keys(_this.connections).map(function (connection) { return _this.connections[connection]._adapter.teardown; }), function (err, _res) { return done(err); });
+        return _this.connections && async.parallel(Object.keys(_this.connections).map(function (connection) { return _this.connections[connection]._adapter.teardown; }), done);
     });
     describe('/api/user', function () {
         beforeEach(function (done) { return _this.sdk.unregister_all(user_mocks_1.user_mocks.successes, function () { return done(); }); });
@@ -28,16 +28,15 @@ describe('User::routes', function () {
             _this.sdk.register(user_mocks_1.user_mocks.successes[0], done);
         });
         it('GET should retrieve user', function (done) {
-            var sdk = _this.sdk;
             async.waterfall([
-                function (cb) { return sdk.register(user_mocks_1.user_mocks.successes[1], cb); },
-                function (_, cb) { return sdk.login(user_mocks_1.user_mocks.successes[1], function (err, res) {
+                function (cb) { return _this.sdk.register(user_mocks_1.user_mocks.successes[1], cb); },
+                function (_, cb) { return _this.sdk.login(user_mocks_1.user_mocks.successes[1], function (err, res) {
                     return err ? cb(err) : cb(null, res.body.access_token);
                 }); },
                 function (access_token, cb) {
-                    return sdk.get_user(access_token, user_mocks_1.user_mocks.successes[1], cb);
+                    return _this.sdk.get_user(access_token, user_mocks_1.user_mocks.successes[1], cb);
                 }
-            ], function (err, results) { return done(err); });
+            ], done);
         });
         it('PUT should edit user', function (done) {
             async.waterfall([
@@ -54,7 +53,7 @@ describe('User::routes', function () {
                 },
                 function (r, cb) {
                     if (r.statusCode / 100 >= 3)
-                        return done(new Error(JSON.stringify(r.text, null, 4)));
+                        return cb(new Error(JSON.stringify(r.text, null, 4)));
                     chai_1.expect(Object.keys(r.body).sort()).to.deep.equal(['createdAt', 'email', 'title', 'updatedAt']);
                     chai_1.expect(r.body.title).equals('Mr');
                     return cb();
@@ -78,7 +77,7 @@ describe('User::routes', function () {
                 function (cb) { return _this.sdk.login(user_mocks_1.user_mocks.successes[2], function (e) {
                     return cb(!e ? new Error('User can login after unregister') : null);
                 }); }
-            ], function (err, results) { return done(err); });
+            ], done);
         });
     });
 });

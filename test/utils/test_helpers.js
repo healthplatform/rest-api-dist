@@ -6,13 +6,13 @@ describe('utils::helpers', function () {
         var array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         var comparator = function (a, b) { return a > b; };
         it('should find each element', function () {
-            array.map(function (elem) { return chai_1.expect(helpers_1.binarySearch(array, elem, comparator)).to.be.gt(-1); });
+            return array.map(function (elem) { return chai_1.expect(helpers_1.binarySearch(array, elem, comparator)).to.be.gt(-1); });
         });
         it('should not find an element', function () {
-            [50, -1, 0, null, 'hello', undefined, '', NaN, {}, []].map(function (elem) { return chai_1.expect(helpers_1.binarySearch(array, elem, comparator)).to.be.lte(-1); });
+            return [50, -1, 0, null, 'hello', undefined, '', NaN, {}, []].map(function (elem) { return chai_1.expect(helpers_1.binarySearch(array, elem, comparator)).to.be.lte(-1); });
         });
         it('should handle empty list', function () {
-            chai_1.expect(helpers_1.binarySearch([], 5, comparator)).to.be.lte(-1);
+            return chai_1.expect(helpers_1.binarySearch([], 5, comparator)).to.be.lte(-1);
         });
     });
     describe('isShallowSubset', function () {
@@ -52,8 +52,8 @@ describe('utils::helpers', function () {
                     return chai_1.expect(helpers_1.isShallowSubset([1, 2, 7], [2, 2, 5])).to.be.false;
                 });
                 it('experienced with two different, different sized lists', function () {
-                    chai_1.expect(helpers_1.isShallowSubset([7, 1, 2, 5], [10, 35, 2, 2, 5])).to.be.false;
-                    chai_1.expect(helpers_1.isShallowSubset([1, 2, 5, 6], [2, 2, 5])).to.be.false;
+                    it('list 0', function () { return chai_1.expect(helpers_1.isShallowSubset([7, 1, 2, 5], [10, 35, 2, 2, 5])).to.be.false; });
+                    it('list 1', function () { return chai_1.expect(helpers_1.isShallowSubset([1, 2, 5, 6], [2, 2, 5])).to.be.false; });
                 });
                 it('experienced with array_0.length > array_1.length', function () {
                     return chai_1.expect(helpers_1.isShallowSubset([1, 2, 5, 6], [1, 2, 5])).to.be.false;
@@ -96,7 +96,7 @@ describe('utils::helpers', function () {
     });
     describe('uri_to_config', function () {
         it('should work with full', function () {
-            chai_1.expect(helpers_1.uri_to_config('postgresql://postgres:postgres@localhost/postgres')).to.deep.equal({
+            return chai_1.expect(helpers_1.uri_to_config('postgresql://postgres:postgres@localhost/postgres')).to.deep.equal({
                 "database": "postgres",
                 "host": "localhost",
                 "identity": "postgres",
@@ -105,7 +105,7 @@ describe('utils::helpers', function () {
             });
         });
         it('should work with minimal', function () {
-            chai_1.expect(helpers_1.uri_to_config('postgresql://localhost')).to.deep.equal({
+            return chai_1.expect(helpers_1.uri_to_config('postgresql://localhost')).to.deep.equal({
                 "host": "localhost",
                 "identity": "postgres",
                 "user": "postgres"

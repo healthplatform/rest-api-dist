@@ -36,7 +36,7 @@ describe('Visit::routes', function () {
         });
     }); });
     after(function (done) {
-        return async.parallel(Object.keys(_this.connections).map(function (connection) { return _this.connections[connection]._adapter.teardown; }), function (err, _res) { return done(err); });
+        return async.parallel(Object.keys(_this.connections).map(function (connection) { return _this.connections[connection]._adapter.teardown; }), done);
     });
     describe('/api/patient/{medicare_no}/visit', function () {
         beforeEach(function (done) {

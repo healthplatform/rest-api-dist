@@ -7,7 +7,7 @@ describe('Root::routes', function () {
     before(function (done) {
         return main_1.main({}, function (app) {
             _this.app = app;
-            done();
+            return done();
         }, true);
     });
     describe('/', function () {

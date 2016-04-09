@@ -17,7 +17,7 @@ describe('Auth::routes', function () {
         done();
     }); });
     after(function (done) {
-        return async.parallel(Object.keys(_this.connections).map(function (connection) { return _this.connections[connection]._adapter.teardown; }), function (err, _res) { return done(err); });
+        return async.parallel(Object.keys(_this.connections).map(function (connection) { return _this.connections[connection]._adapter.teardown; }), done);
     });
     describe('/api/auth', function () {
         beforeEach(function (done) { return _this.sdk.unregister_all(user_mocks_1.user_mocks.successes, function () { return done(); }); });
@@ -45,7 +45,7 @@ describe('Auth::routes', function () {
                         return cb(!e ? new Error("Access token wasn't invalidated/removed") : null);
                     });
                 }
-            ], function (err, results) { return done(err); });
+            ], done);
         });
     });
 });

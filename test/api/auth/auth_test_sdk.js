@@ -84,7 +84,7 @@ var AuthTestSDK = (function () {
     AuthTestSDK.prototype.unregister_all = function (users, done) {
         var _this = this;
         async.map(users, function (user, callback) {
-            async.waterfall([
+            return async.waterfall([
                 function (cb) { return _this.login(user, function (err, res) {
                     return err ? cb(err) : cb(null, res.body.access_token);
                 }); },

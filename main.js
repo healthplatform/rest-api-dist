@@ -7,10 +7,12 @@ var sails_postgresql = require('sails-postgresql');
 var bunyan_1 = require('bunyan');
 var helpers_1 = require('./utils/helpers');
 var SampleData_1 = require('./utils/SampleData');
+var multiparty = require('connect-multiparty');
 var package_ = require('./package');
 var logger = bunyan_1.createLogger({
     name: 'main'
 });
+exports.multipartyMiddleware = multiparty();
 if (!process.env.NO_DEBUG) {
     var i = {};
     Object.keys(process.env)

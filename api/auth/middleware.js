@@ -9,8 +9,11 @@ var Roles = exports.Roles;
 function has_auth(scope) {
     if (scope === void 0) { scope = 'login'; }
     return function (req, res, next) {
+        if (req.params.access_token) {
+            req.headers['x-access-token'] = req.params.access_token;
+        }
         if (!req.headers['x-access-token']) {
-            res.json(404, {
+            res.json(403, {
                 error: 'NotFound',
                 error_message: 'X-Access-Token header must be included'
             });
@@ -18,9 +21,9 @@ function has_auth(scope) {
         }
         models_1.AccessToken().findOne(req.headers['x-access-token'], function (e, r) {
             if (e)
-                res.json(400, e);
+                res.json(403, e);
             else if (!r)
-                res.json(404, {
+                res.json(403, {
                     error: 'NotFound', error_message: 'Invalid access token used'
                 });
             else

@@ -79,7 +79,7 @@ function fmtError(error, statusCode) {
     if (!error)
         return null;
     else if (error.invalidAttributes || error.originalError)
-        return new errors.WaterlineError(error);
+        return new errors.WaterlineError(error, statusCode);
     else if (error instanceof restify_1.RestError)
         return error;
     else

@@ -11,6 +11,7 @@ function create(app, namespace) {
     namespace = namespace.substr(0, namespace.lastIndexOf('/'));
     app.post(namespace + "/patient/:medicare_no/" + noun, validators_1.has_body, middleware_2.has_auth(), function (req, res, next) {
         var Visit = main_1.collections['visit_tbl'], Patient = main_1.collections['patient_tbl'];
+        console.info('req.body =', req.body);
         req.body.medicare_no = req.params.medicare_no;
         Patient.count({ medicare_no: req.body.medicare_no }, function (err, count) {
             if (err) {
@@ -22,10 +23,7 @@ function create(app, namespace) {
                 return next(new restify_1.NotFoundError('patient'));
             }
             else {
-                Visit.create({
-                    medicare_no: req.params.medicare_no,
-                    iop_left_eye: 5
-                }).exec(function (error, visit) {
+                Visit.create(req.body).exec(function (error, visit) {
                     if (error) {
                         var e = helpers_1.fmtError(error);
                         res.send(e.statusCode, e.body);
