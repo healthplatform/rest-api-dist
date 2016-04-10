@@ -4,6 +4,9 @@ var main_1 = require('../../main');
 var helpers_1 = require('../../utils/helpers');
 function fetchStorage(req, res, next) {
     var Storage = main_1.collections['storage_tbl'];
+    if (req.params.filename === undefined) {
+        return next(new restify_1.NotFoundError('filename in url is undefined'));
+    }
     Storage.findOne({
         uploader: req.params.uploader,
         name: req.params.uploader + "/" + req.params.filename
