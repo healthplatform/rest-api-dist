@@ -8,6 +8,7 @@ var bunyan_1 = require('bunyan');
 var helpers_1 = require('./utils/helpers');
 var SampleData_1 = require('./utils/SampleData');
 var multiparty = require('connect-multiparty');
+var errors_1 = require('./utils/errors');
 var package_ = require('./package');
 var logger = bunyan_1.createLogger({
     name: 'main'
@@ -57,6 +58,9 @@ function main(models_and_routes, callback, skip_db, createSampleData) {
     var root = '/api';
     app.use(restify.queryParser());
     app.use(restify.bodyParser());
+    app.on('WLError', function (req, res, err, next) {
+        return next(new errors_1.WaterlineError(err));
+    });
     app.on('after', restify.auditLogger({
         log: bunyan_1.createLogger({
             name: 'audit',

@@ -19,7 +19,7 @@ exports.User = {
             var user = this.toObject();
             delete user.password;
             for (var key in user)
-                if (!user[key])
+                if (user.hasOwnProperty(key) && !user[key])
                     delete user[key];
             return user;
         }

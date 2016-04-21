@@ -27,12 +27,16 @@ exports.Patient = {
         ethnicity: {
             type: 'string'
         },
+        visits: {
+            collection: 'visit_tbl',
+            via: 'medicare_no'
+        },
         toJSON: function toJSON() {
-            var visit = this.toObject();
-            for (var key in visit)
-                if (!visit[key])
-                    delete visit[key];
-            return visit;
+            var patient = this.toObject();
+            for (var key in patient)
+                if (patient.hasOwnProperty(key) && !patient[key])
+                    delete patient[key];
+            return patient;
         }
     }
 };

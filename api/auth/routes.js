@@ -2,7 +2,6 @@
 var async = require('async');
 var validators_1 = require('./../../utils/validators');
 var main_1 = require('./../../main');
-var helpers_1 = require('./../../utils/helpers');
 var errors_1 = require('./../../utils/errors');
 var middleware_1 = require('./middleware');
 var models_1 = require('./models');
@@ -20,11 +19,8 @@ function login(app, namespace) {
             }); },
             function (cb) { return cb(null, models_1.AccessToken().add(req.body.email, 'login')); }
         ], function (error, access_token) {
-            if (error) {
-                var e = helpers_1.fmtError(error);
-                res.send(e.statusCode, e.body);
-                return next();
-            }
+            if (error)
+                return next(errors_1.fmtError(error));
             res.setHeader('X-Access-Token', access_token);
             res.json(201, { access_token: access_token });
             return next();

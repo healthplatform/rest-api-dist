@@ -9,8 +9,11 @@ var models_and_routes = {
     user: main_1.all_models_and_routes['user'],
     auth: main_1.all_models_and_routes['auth'],
     contact: main_1.all_models_and_routes['contact'],
-    patient: main_1.all_models_and_routes['patient']
+    patient: main_1.all_models_and_routes['patient'],
+    visit: main_1.all_models_and_routes['visit'],
+    prognosis: main_1.all_models_and_routes['prognosis']
 };
+process.env.NO_SAMPLE_DATA = true;
 describe('Patient::routes', function () {
     before(function (done) { return main_1.main(models_and_routes, function (app, connections) {
         _this.connections = connections;
@@ -18,8 +21,8 @@ describe('Patient::routes', function () {
         _this.mocks = new patient_mocks_1.PatientMocks();
         _this.authSDK = new auth_test_sdk_1.AuthTestSDK(_this.app);
         async.series([
-            function (cb) { return _this.authSDK.logout_unregister(undefined, function () { return cb(); }); },
-            function (cb) { return _this.authSDK.register_login(undefined, cb); }
+            function (cb) { return _this.authSDK.logout_unregister(undefined, 1, function () { return cb(); }); },
+            function (cb) { return _this.authSDK.register_login(undefined, 1, cb); }
         ], function (err, responses) {
             if (err) {
                 return done(err);

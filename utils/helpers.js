@@ -1,6 +1,4 @@
 "use strict";
-var restify_1 = require('restify');
-var errors = require('./errors');
 var fs_1 = require('fs');
 var path_1 = require('path');
 function trivial_merge(obj) {
@@ -74,18 +72,6 @@ function uri_to_config(uri) {
     })(uri.slice('postgres'.length + 3).split(':'));
 }
 exports.uri_to_config = uri_to_config;
-function fmtError(error, statusCode) {
-    if (statusCode === void 0) { statusCode = 400; }
-    if (!error)
-        return null;
-    else if (error.invalidAttributes || error.originalError)
-        return new errors.WaterlineError(error, statusCode);
-    else if (error instanceof restify_1.RestError)
-        return error;
-    else
-        throw TypeError('Unhandled input to fmtError:' + error);
-}
-exports.fmtError = fmtError;
 function isShallowSubset(o0, o1) {
     var l0_keys = (o0 instanceof Array ? o0 : Object.keys(o0)).sort(), l1_keys = (o1 instanceof Array ? o1 : Object.keys(o1)).sort();
     if (l0_keys.length > l1_keys.length)
@@ -156,3 +142,8 @@ function groupBy(array, f) {
     });
 }
 exports.groupBy = groupBy;
+function getUTCDate(now) {
+    if (now === void 0) { now = new Date(); }
+    return new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+}
+exports.getUTCDate = getUTCDate;

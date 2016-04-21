@@ -10,7 +10,7 @@ var PatientTestSDK = (function () {
         }
     }
     PatientTestSDK.prototype.register = function (patient, cb) {
-        if (!patient)
+        if (!patient || Object.keys(patient).length < 1)
             return cb(new TypeError('patient argument to register must be defined'));
         supertest(this.app)
             .post('/api/patient')
@@ -28,7 +28,7 @@ var PatientTestSDK = (function () {
         });
     };
     PatientTestSDK.prototype.deregister = function (patient, cb) {
-        if (!patient)
+        if (!patient || Object.keys(patient).length < 1)
             return cb(new TypeError('patient argument to deregister must be defined'));
         supertest(this.app)
             .del("/api/patient/" + patient.medicare_no)
@@ -44,7 +44,7 @@ var PatientTestSDK = (function () {
         });
     };
     PatientTestSDK.prototype.registerMany = function (patients, cb) {
-        if (!patients)
+        if (!patients || Object.keys(patients).length < 1 || patients.patients.length < 1)
             return cb(new TypeError('patients argument to registerMany must be defined'));
         supertest(this.app)
             .post('/api/patients')
@@ -66,7 +66,7 @@ var PatientTestSDK = (function () {
         });
     };
     PatientTestSDK.prototype.deregisterMany = function (patients, cb) {
-        if (!patients)
+        if (!patients || Object.keys(patients).length < 1 || patients.patients.length < 1)
             return cb(new TypeError('patients argument to deregisterMany must be defined'));
         supertest(this.app)
             .del("/api/patients")
@@ -77,8 +77,15 @@ var PatientTestSDK = (function () {
                 return cb(err);
             else if (res.statusCode / 100 >= 3)
                 return cb(new Error(JSON.stringify(res.text, null, 4)));
-            chai_1.expect(res.statusCode).to.equal(204);
-            return cb(err, res);
+            try {
+                chai_1.expect(res.statusCode).to.equal(204);
+            }
+            catch (e) {
+                err = e;
+            }
+            finally {
+                cb(err, res);
+            }
         });
     };
     return PatientTestSDK;

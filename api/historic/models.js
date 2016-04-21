@@ -39,11 +39,11 @@ exports.Historic = {
             type: 'string'
         },
         toJSON: function toJSON() {
-            var visit = this.toObject();
-            for (var key in visit)
-                if (!visit[key])
-                    delete visit[key];
-            return visit;
+            var historic = this.toObject();
+            for (var key in historic)
+                if (historic.hasOwnProperty(key) && !historic[key])
+                    delete historic[key];
+            return historic;
         }
     }
 };

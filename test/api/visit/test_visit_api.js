@@ -12,10 +12,12 @@ var models_and_routes = {
     auth: main_1.all_models_and_routes['auth'],
     contact: main_1.all_models_and_routes['contact'],
     patient: main_1.all_models_and_routes['patient'],
-    kv: main_1.all_models_and_routes['kv'],
-    visit: main_1.all_models_and_routes['visit']
+    visit: main_1.all_models_and_routes['visit'],
+    prognosis: main_1.all_models_and_routes['prognosis']
 };
+process.env.NO_SAMPLE_DATA = true;
 describe('Visit::routes', function () {
+    var self = _this;
     before(function (done) { return main_1.main(models_and_routes, function (app, connections) {
         _this.connections = connections;
         _this.app = app;
@@ -26,9 +28,8 @@ describe('Visit::routes', function () {
             function (cb) { return _this.authSDK.logout_unregister(undefined, function () { return cb(); }); },
             function (cb) { return _this.authSDK.register_login(undefined, cb); }
         ], function (err, responses) {
-            if (err) {
+            if (err)
                 return done(err);
-            }
             _this.token = responses[1];
             _this.sdk = new visit_test_sdk_1.VisitTestSDK(_this.app, _this.token);
             _this.patientSDK = new patient_test_sdk_1.PatientTestSDK(_this.app, _this.token);
@@ -46,11 +47,12 @@ describe('Visit::routes', function () {
         });
         afterEach(function (done) {
             return _this.sdk.deregister(_this.mocks[0], function (err) {
-                return err && done(err) || _this.patientSDK.deregister(_this.patient_mocks.patients[0], done);
+                return err ? done(err) : _this.patientSDK.deregister(_this.patient_mocks.patients[0], done);
             });
         });
         it('POST should create Visit', function (done) {
-            _this.sdk.register(_this.mocks[0], function (err, visit) {
+            return _this.sdk.register(_this.mocks[0], function (err, visit) {
+                console.info('cb of this.sdk.register');
                 if (err)
                     return done(err);
                 _this.mocks[0].createdAt = visit.createdAt;
@@ -65,16 +67,17 @@ describe('Visit::routes', function () {
             });
         });
         afterEach(function (done) {
-            return _this.sdk.deregisterManyFaux(_this.mocks, function (err) {
-                return err && done(err) || _this.patientSDK.deregister(_this.patient_mocks.patients[0], done);
+            return _this.sdk.deregisterManyFaux({ visits: _this.mocks }, function (err) {
+                return err ? done(err) : _this.patientSDK.deregisterMany(_this.patient_mocks, done);
             });
         });
         it('POST should create many Visit', function (done) {
-            _this.sdk.registerManyFaux(_this.mocks, function (err, visits) {
+            return self.sdk.registerManyFaux({ visits: _this.mocks }, function (err, visits) {
                 if (err)
                     return done(err);
                 for (var i = 0; i < visits.length; i++)
                     _this.mocks[i].createdAt = visits[i].createdAt;
+                console.info(_this.mocks);
                 return done();
             });
         });

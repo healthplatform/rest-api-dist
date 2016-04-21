@@ -9,6 +9,7 @@ var user_models_and_routes = {
     user: main_1.all_models_and_routes['user'],
     auth: main_1.all_models_and_routes['auth'],
 };
+process.env.NO_SAMPLE_DATA = true;
 describe('Auth::routes', function () {
     before(function (done) { return main_1.main(user_models_and_routes, function (app, connections) {
         _this.connections = connections;

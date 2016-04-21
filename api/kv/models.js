@@ -13,11 +13,11 @@ exports.KV = {
             required: true
         },
         toJSON: function toJSON() {
-            var visit = this.toObject();
-            for (var key in visit)
-                if (!visit[key])
-                    delete visit[key];
-            return visit;
+            var kv = this.toObject();
+            for (var key in kv)
+                if (kv.hasOwnProperty(key) && !kv[key])
+                    delete kv[key];
+            return kv;
         }
     }
 };

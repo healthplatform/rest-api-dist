@@ -25,11 +25,11 @@ exports.Storage = {
             type: 'string'
         },
         toJSON: function toJSON() {
-            var visit = this.toObject();
-            for (var key in visit)
-                if (!visit[key])
-                    delete visit[key];
-            return visit;
+            var storage = this.toObject();
+            for (var key in storage)
+                if (storage.hasOwnProperty(key) && !storage[key])
+                    delete storage[key];
+            return storage;
         }
     }
 };

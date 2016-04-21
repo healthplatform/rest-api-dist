@@ -11,6 +11,7 @@ var user_models_and_routes = {
     user: main_1.all_models_and_routes['user'],
     auth: main_1.all_models_and_routes['auth'],
 };
+process.env.NO_SAMPLE_DATA = true;
 describe('User::routes', function () {
     before(function (done) { return main_1.main(user_models_and_routes, function (app, connections) {
         _this.connections = connections;
@@ -40,8 +41,8 @@ describe('User::routes', function () {
         });
         it('PUT should edit user', function (done) {
             async.waterfall([
-                function (cb) { return _this.sdk.register(user_mocks_1.user_mocks.successes[1], cb); },
-                function (_, cb) { return _this.sdk.login(user_mocks_1.user_mocks.successes[1], function (err, res) {
+                function (cb) { return _this.sdk.register(user_mocks_1.user_mocks.successes[2], cb); },
+                function (_, cb) { return _this.sdk.login(user_mocks_1.user_mocks.successes[2], function (err, res) {
                     return err ? cb(err) : cb(null, res.body.access_token);
                 }); },
                 function (access_token, cb) {
@@ -62,8 +63,8 @@ describe('User::routes', function () {
         });
         it('DELETE should unregister user', function (done) {
             return async.waterfall([
-                function (cb) { return _this.sdk.register(user_mocks_1.user_mocks.successes[2], cb); },
-                function (_, cb) { return _this.sdk.login(user_mocks_1.user_mocks.successes[2], function (err, res) {
+                function (cb) { return _this.sdk.register(user_mocks_1.user_mocks.successes[3], cb); },
+                function (_, cb) { return _this.sdk.login(user_mocks_1.user_mocks.successes[3], function (err, res) {
                     return err ? cb(err) : cb(null, res.body.access_token);
                 }); },
                 function (access_token, cb) {
@@ -74,7 +75,7 @@ describe('User::routes', function () {
                 function (access_token, cb) { return models_1.AccessToken().findOne(access_token, function (e) {
                     return cb(!e ? new Error('Access token wasn\'t invalidated/removed') : null);
                 }); },
-                function (cb) { return _this.sdk.login(user_mocks_1.user_mocks.successes[2], function (e) {
+                function (cb) { return _this.sdk.login(user_mocks_1.user_mocks.successes[3], function (e) {
                     return cb(!e ? new Error('User can login after unregister') : null);
                 }); }
             ], done);

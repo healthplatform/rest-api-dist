@@ -14,10 +14,18 @@ function createPatient(newPatient, callback) {
         return callback(new restify_1.NotFoundError('patient.contact'));
     async.waterfall([
         function (cb) { return Contact.findOrCreate(b_contact).exec(function (err, contact) {
-            return cb(contact ? err : err || new restify_1.NotFoundError('patient.contact'), contact.id);
+            if (err)
+                return cb(err);
+            else if (!contact)
+                return cb(new restify_1.NotFoundError('patient.contact'));
+            return cb(null, contact.id);
         }); },
         function (b_contactId, cb) { return gp ? Contact.findOrCreate(gp).exec(function (err, contact) {
-            return cb(contact ? err : err || new restify_1.NotFoundError('patient.gp'), b_contactId, contact.id);
+            if (err)
+                return cb(err);
+            else if (!contact)
+                return cb(new restify_1.NotFoundError('gp.contact'));
+            return cb(null, b_contactId, contact.id);
         }) : cb(null, b_contactId, null); },
         function (b_contactId, gpId, cb) { return other_specialists && other_specialists.length ?
             async.map(other_specialists, function (specialist, _cb) { return Contact.findOrCreate(specialist, _cb); }, function (err, specialists) { return cb(err, b_contactId, gpId, specialists); }) : cb(null, b_contactId, gpId, null); },

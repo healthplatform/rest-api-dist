@@ -19,9 +19,17 @@ var AuthTestSDK = (function () {
                 return cb(err);
             else if (res.statusCode / 100 >= 3)
                 return cb(new Error(JSON.stringify(res.text, null, 4)));
-            chai_1.expect(res.statusCode).to.be.equal(201);
-            chai_1.expect(Object.keys(res.body).sort()).to.deep.equal(['createdAt', 'email', 'updatedAt']);
-            return cb(err, res);
+            try {
+                chai_1.expect(res.body).to.be.an('object');
+                chai_1.expect(res.statusCode).to.be.equal(201);
+                chai_1.expect(res.body).to.have.all.keys('createdAt', 'email', 'updatedAt');
+            }
+            catch (e) {
+                err = e;
+            }
+            finally {
+                cb(err, res);
+            }
         });
     };
     AuthTestSDK.prototype.login = function (user, cb) {
@@ -37,8 +45,15 @@ var AuthTestSDK = (function () {
                 return cb(err);
             else if (res.statusCode / 100 >= 3)
                 return cb(new Error(JSON.stringify(res.text, null, 4)));
-            chai_1.expect(Object.keys(res.body)).to.deep.equal(['access_token']);
-            return cb(err, res);
+            try {
+                chai_1.expect(res.body).to.have.property('access_token');
+            }
+            catch (e) {
+                err = e;
+            }
+            finally {
+                cb(err, res);
+            }
         });
     };
     AuthTestSDK.prototype.get_user = function (access_token, user, cb) {
@@ -52,8 +67,15 @@ var AuthTestSDK = (function () {
                 return cb(err);
             else if (res.statusCode / 100 >= 3)
                 return cb(new Error(JSON.stringify(res.text, null, 4)));
-            Object.keys(user).map(function (attr) { return chai_1.expect(user[attr] === res.body[attr]); });
-            return cb(err, res);
+            try {
+                Object.keys(user).map(function (attr) { return chai_1.expect(user[attr] === res.body[attr]); });
+            }
+            catch (e) {
+                err = e;
+            }
+            finally {
+                cb(err, res);
+            }
         });
     };
     AuthTestSDK.prototype.logout = function (access_token, cb) {
@@ -96,12 +118,13 @@ var AuthTestSDK = (function () {
             ], callback);
         }, done);
     };
-    AuthTestSDK.prototype.register_login = function (user, done) {
+    AuthTestSDK.prototype.register_login = function (user, num_or_done, done) {
         var _this = this;
-        user = user || user_mocks_1.user_mocks.successes[0];
-        if (!user) {
-            return done(new TypeError('user undefined in `register_login`'));
+        if (!done) {
+            done = num_or_done;
+            num_or_done = 0;
         }
+        user = user || user_mocks_1.user_mocks.successes[num_or_done];
         async.series([
             function (cb) { return _this.register(user, cb); },
             function (cb) { return _this.login(user, cb); }
@@ -112,8 +135,12 @@ var AuthTestSDK = (function () {
             return done(err, results[1].get('x-access-token'));
         });
     };
-    AuthTestSDK.prototype.logout_unregister = function (user, done) {
-        user = user || user_mocks_1.user_mocks.successes[0];
+    AuthTestSDK.prototype.logout_unregister = function (user, num_or_done, done) {
+        if (!done) {
+            done = num_or_done;
+            num_or_done = 0;
+        }
+        user = user || user_mocks_1.user_mocks.successes[num_or_done];
         if (!user) {
             return done(new TypeError('user undefined in `logout_unregister`'));
         }

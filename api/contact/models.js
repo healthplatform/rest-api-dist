@@ -32,14 +32,11 @@ exports.Contact = {
             required: true
         },
         toJSON: function toJSON() {
-            var visit = this.toObject();
-            for (var key in visit)
-                if (!visit[key])
-                    delete visit[key];
-            return visit;
-        },
-        save: function () {
-            console.log('Contact::save::arguments =', arguments);
+            var contact = this.toObject();
+            for (var key in contact)
+                if (contact.hasOwnProperty(key) && !contact[key])
+                    delete contact[key];
+            return contact;
         }
     }
 };

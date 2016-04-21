@@ -12,11 +12,8 @@ function create(app, namespace) {
     app.post(namespace, validators_1.has_body, validators_1.mk_valid_body_mw(user_schema), function (req, res, next) {
         var User = main_1.collections['user_tbl'];
         User.create(req.body).exec(function (error, user) {
-            if (error) {
-                var e = helpers_1.fmtError(error);
-                res.send(e.statusCode, e.body);
-                return next();
-            }
+            if (error)
+                return next(errors_1.fmtError(error));
             res.setHeader('X-Access-Token', models_1.AccessToken().add(req.body.email, 'login'));
             res.json(201, user);
             return next();
@@ -29,7 +26,8 @@ function read(app, namespace) {
     app.get(namespace, middleware_1.has_auth(), function (req, res, next) {
         var User = main_1.collections['user_tbl'];
         User.findOne({ email: req['user_id'] }, function (error, user) {
-            next.ifError(helpers_1.fmtError(error));
+            if (error)
+                return next(errors_1.fmtError(error));
             if (!user)
                 next(new errors_1.NotFoundError('User'));
             else
@@ -62,11 +60,8 @@ function update(app, namespace) {
                 return User.update(user, req.body, function (e, r) { return cb(e, r[0]); });
             }
         ], function (error, result) {
-            if (error) {
-                var e = helpers_1.fmtError(error);
-                res.send(e.statusCode, e.body);
-                return next();
-            }
+            if (error)
+                return next(errors_1.fmtError(error));
             res.json(200, result);
             return next();
         });
@@ -81,11 +76,8 @@ function del(app, namespace) {
             function (cb) { return models_1.AccessToken().logout({ user_id: req['user_id'] }, cb); },
             function (cb) { return User.destroy({ email: req['user_id'] }, cb); }
         ], function (error) {
-            if (error) {
-                var e = helpers_1.fmtError(error);
-                res.send(e.statusCode, e.body);
-                return next();
-            }
+            if (error)
+                return next(errors_1.fmtError(error));
             res.send(204);
             return next();
         });
