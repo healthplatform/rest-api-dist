@@ -6,6 +6,8 @@ function fetchVisit(req, res, next) {
     Visit.findOne({ createdAt: req.params.createdAt }).exec(function (error, visit) {
         if (error)
             return next(errors_1.fmtError(error));
+        else if (!visit)
+            return next(new errors_1.NotFoundError('visit'));
         req.visit = visit;
         return next();
     });

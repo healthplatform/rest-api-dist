@@ -11,9 +11,8 @@ function fetchPatient(req, res, next) {
     q.exec(function (error, patient) {
         if (error)
             return next(errors_1.fmtError(error));
-        if (!patient) {
+        else if (!patient)
             return next(new errors_1.NotFoundError("patient with medicare_no '" + req.params.medicare_no + "'"));
-        }
         req.patient = patient;
         return next();
     });

@@ -28,10 +28,9 @@ function read(app, namespace) {
         User.findOne({ email: req['user_id'] }, function (error, user) {
             if (error)
                 return next(errors_1.fmtError(error));
-            if (!user)
+            else if (!user)
                 next(new errors_1.NotFoundError('User'));
-            else
-                res.json(user);
+            res.json(user);
             return next();
         });
     });

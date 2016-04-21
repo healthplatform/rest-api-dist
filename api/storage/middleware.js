@@ -12,9 +12,8 @@ function fetchStorage(req, res, next) {
     }).exec(function (error, storage) {
         if (error)
             return next(errors_1.fmtError(error));
-        if (!storage) {
+        else if (!storage)
             return next(new errors_1.NotFoundError('storage'));
-        }
         req.storage = storage;
         return next();
     });

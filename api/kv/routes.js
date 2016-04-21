@@ -22,6 +22,8 @@ function get(app, namespace) {
         KV.findOne({ key: req.params.key }).exec(function (error, kv) {
             if (error)
                 return next(errors_1.fmtError(error));
+            else if (!kv)
+                return next(new errors_1.NotFoundError('kv'));
             res.json(kv);
             return next();
         });
